@@ -108,8 +108,7 @@ class MachineState:
     head_pos: int
     tape: str
     def print_state(self):
-
-    pass
+        pass
 
 
 class Machine:

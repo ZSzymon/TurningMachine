@@ -107,9 +107,19 @@ class MachineState:
     current_state: str
     head_pos: int
     tape: str
-    def print_state(self):
-        pass
+    empty_chars = int
 
+    def __init__(self, current_state, head_pos, tape, empty_chars):
+        self.current_state = current_state
+        self.head_pos = head_pos
+        self.tape = tape
+        self.empty_chars = empty_chars
+
+    def toString(self):
+        state = "" * self.empty_chars
+        state +=  "state: " + self.current_state + "\n"
+        state += self.tape + "\n"
+        return state
 
 class Machine:
     model: ExerciseModel
@@ -122,6 +132,7 @@ class Machine:
         self.model = model
 
     def solve(self, debug = True):
+        """run run run."""
 
 
 

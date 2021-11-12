@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 from dataclasses import field, dataclass
-from typing import List, Tuple, Dict, Set
 from string import ascii_letters, whitespace, punctuation
+from typing import Set
 
 
 class Instruction:
@@ -33,6 +33,7 @@ class ExerciseModel:
     word: str = ""
     end_state: str = "k"
     begin_state: str = "b"
+    empty_char: str = "_"
 
     def __init__(self, raw_content):
         self._init_all(raw_content)
@@ -109,30 +110,92 @@ class MachineState:
     tape: str
     empty_chars = int
 
-    def __init__(self, current_state, head_pos, tape, empty_chars):
+    def __init__(self, current_state, head_pos, tape):
         self.current_state = current_state
         self.head_pos = head_pos
-        self.tape = tape
-        self.empty_chars = empty_chars
+        global machineTape
+        machineTape = tape
 
-    def toString(self):
-        state = "" * self.empty_chars
-        state +=  "state: " + self.current_state + "\n"
+    def __str__(self) -> str:
+        return self.to_string()
+
+    def to_string(self):
+        state = " " * self.head_pos
+        state += "state: " + self.current_state + "\n"
         state += self.tape + "\n"
         return state
+
+
+class Head:
+    head_pos: int
+
+    def __init__(self, head_pos):
+        self.head_pos = head_pos
+
+    def readChar(self):
+        char = machineTape[self.head_pos]
+        return char
+
+    def writeChar(self, char_to_write):
+        machineTape[self.head_pos] = char_to_write
+
+    def goRight(self):
+        self.head_pos += 1
+
+    def go(self, direction):
+        if direction == "r":
+            self.goRight()
+        if direction == "l":
+            self.goLeft()
+        if direction == "s":
+            pass
+
+    def goLeft(self):
+        self.head_pos -= 1
+
+    def set_head_at_begin(self):
+        self.head_pos = 0
+
 
 class Machine:
     model: ExerciseModel
     current_state: str
     next_state: str
-    head_pos: int
+    head: Head
     tape: str
     machine_states: list
+
+    def getMachineState(self):
+        return MachineState(self.current_state, self.head.head_pos, self.tape)
+
     def __init__(self, model):
+        self.begin_state = model.begin_state
         self.model = model
+        self.current_state = model.begin_state
+        self.head = Head(self.get_index_first_not_empty_char())
+        self.head.set_head_at_begin()
+        self.machine_states = []
 
-    def solve(self, debug = True):
+    def get_index_first_not_empty_char(self):
+        empty_char = self.model.empty_char
+        for i, char in enumerate(self.model.word):
+            if char == empty_char:
+                return i
+
+    def is_in_end_state(self):
+        return self.current_state == self.model.end_state
+
+    def solve(self, debug=True):
         """run run run."""
+        cond = True
+        while cond:
 
-
-
+            currentMachineState = self.getMachineState()
+            if debug:
+                print(currentMachineState)
+            self.machine_states.append(currentMachineState)
+            currentChar = self.head.readChar()
+            instruction = self.model.instructions[(self.current_state, currentChar)]
+            self.head.writeChar(instruction.changeTo)
+            self.current_state = instruction.nextState
+            self.head.go(instruction.moveDirection)

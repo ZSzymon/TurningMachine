@@ -1,6 +1,7 @@
-from unittest import TestCase, skip
-from Machine.Model import ExerciseModel
-from Machine.InputHandler import InputHandler
+from unittest import TestCase
+
+from src.InputHandler import InputHandler
+from src.Model import *
 
 
 class TestExerciseModel(TestCase):
@@ -39,3 +40,24 @@ class TestExerciseModel(TestCase):
 
     def test__init_word_(self):
         self.assertEquals("011001", self.model.word)
+
+
+class TestMachine(TestCase):
+    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    handler = InputHandler(path)
+    model = ExerciseModel(handler.readFile())
+    machine = Machine(model)
+
+
+class TestMachineState(TestCase):
+    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    handler = InputHandler(path)
+    model = ExerciseModel(handler.readFile())
+    head = Head(model)
+
+    def test_to_string(self):
+        self.fail()
+
+    def test_set_head_at_begin(self):
+        self.head.set_head_at_begin()
+        self.assertEqual(0, self.head.head_pos)

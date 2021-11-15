@@ -36,7 +36,7 @@ class TestExerciseModel(TestCase):
         self.assertEquals("6", self.model.word_len)
 
     def test__init_alphabet(self):
-        self.assertEquals({"0", "1", "_"}, self.model.alphabet)
+        self.assertEquals({"0", "1", "_"}, self.model.alphabet_with_out_empty_char)
 
     def test__init_word_(self):
         self.assertEquals("011001", self.model.word)
@@ -58,6 +58,34 @@ class TestMachineState(TestCase):
     def test_to_string(self):
         self.fail()
 
-    def test_set_head_at_begin(self):
-        self.head.set_head_at_begin()
-        self.assertEqual(0, self.head.head_pos)
+
+class TestValidator(TestCase):
+    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    handler = InputHandler(path)
+    model = ExerciseModel(handler.readFile())
+    def test_validate_model(self):
+        validator = Validator(self.model)
+        validator.validate_alphabet()
+class TestMachine(TestCase):
+    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    handler = InputHandler(path)
+    model = ExerciseModel(handler.readFile())
+    machine = Machine(model)
+    def test_solve(self):
+        tape_before = self.machine.machine_tape
+        self.machine.solve()
+        inverse_tape = []
+        for char in tape_before:
+            if char == "0":
+                inverse_tape.append("0")
+            elif char == "1":
+                inverse_tape.append("1")
+            else:
+                inverse_tape.append(char)
+
+        tape_after = self.machine.machine_tape
+        self.assertEquals(inverse_tape, tape_after)
+        
+    def test_init_machine_tape(self):
+        expected_tape = "__011001__"
+        self.assertEqual(list(expected_tape), self.machine.machine_tape)

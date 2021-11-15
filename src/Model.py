@@ -130,6 +130,10 @@ class Validator():
             if char not in self.model.alphabet:
                 raise BedChar(f"Character {char} not in alphabet: {self.model.alphabet}")
 
+    def validate_instructions(self):
+        """Check is end state possible to approach"""
+        if not any(instruction.next_state == self.model.end_state for instruction in self.model.instructions):
+            raise EndStateNotException("There is not way to go in to end state.")
 
 class MachineState:
     stepCounter: int
@@ -155,9 +159,11 @@ class MachineState:
 
 class Head:
     head_pos: int
+    tape_len: int
 
-    def __init__(self, head_pos):
+    def __init__(self, head_pos, tape_len):
         self.head_pos = head_pos
+        self.tape_len = tape_len
 
     def read_char(self, machine_tape):
         char = machine_tape[self.head_pos]
@@ -167,8 +173,7 @@ class Head:
         machine_tape[self.head_pos] = char_to_write
         return machine_tape
 
-    def goRight(self):
-        self.head_pos += 1
+
 
     def go(self, direction):
         if direction == "r":
@@ -179,17 +184,35 @@ class Head:
             pass
 
     def goLeft(self):
+        if self.head_pos < 0:
+            raise OutOfTapeHeadException("Head moved out of tape in left direction.\nCheck given instructions")
         self.head_pos -= 1
 
+    def goRight(self):
+        if self.head_pos > self.tape_len:
+            raise OutOfTapeHeadException("Head moved out of tape in right direction.\nCheck given instructions")
+        self.head_pos += 1
+
+class InfiniteLoopException(Exception):
+    pass
+
+
+class EndStateNotException(Exception):
+    pass
+
+class OutOfTapeHeadException(Exception):
+    """Head out of tape."""
+    pass
 
 class Machine:
+    max_same_state_counter: int = 99999999
     model: ExerciseModel
     current_state: str
     next_state: str
     head: Head
     machine_tape: List[str]
     machine_states: list
-    same_state_for: int = 0
+    same_state_counter: int = 0
 
     def get_machine_state(self):
         return MachineState(self.current_state, self.head.head_pos, self.machine_tape)
@@ -200,7 +223,7 @@ class Machine:
 
         self._init_machine_tape()
         self.current_state = model.begin_state
-        self.head = Head(self.get_index_first_not_empty_char())
+        self.head = Head(self.get_index_first_not_empty_char(), len(self.machine_tape))
         self.machine_states = []
 
     def _init_machine_tape(self):
@@ -220,10 +243,15 @@ class Machine:
     def prevent_infinite_loop(self, next_state):
         """Count number of same state for every loop"""
         if self.current_state == next_state:
-            self.same_state_for += 1
+            self.same_state_counter += 1
         else:
-            self.same_state_for = 0
-        self.same_state_for = 0 if self.current_state != next_state else self.same_state_for + 1
+            self.same_state_counter = 0
+        self.same_state_counter = 0 if self.current_state != next_state else self.same_state_counter + 1
+
+        if self.same_state_counter > self.max_same_state_counter:
+            raise InfiniteLoopException("Machine is not able to end state.\n"
+                                        "Machine is in same state to long.\n"
+                                        "Check given instructions.")
 
     def solve(self, debug=True):
         """run run run."""

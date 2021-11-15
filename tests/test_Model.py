@@ -19,7 +19,7 @@ class TestExerciseModel(TestCase):
         self.assertEquals({"0", "1", "k"}, self.model.states)
 
     def test__init_instructions_list(self):
-        instructionForZeroWhenOne = ['1', '0', '1', 'r']
+        instructionForZeroWhenOne = ['1', '0', '0', 'r']
         instructionForZeroWhenZero = ['0', '0', '1', 'r']
         instructionForZeroWhenEmpty = ['_', 'k', '_', 's']
         self.assertEquals(instructionForZeroWhenZero, self.model.instructions[('0', '0')].getAsList())
@@ -39,7 +39,7 @@ class TestExerciseModel(TestCase):
         self.assertEquals({"0", "1", "_"}, self.model.alphabet_with_out_empty_char)
 
     def test__init_word_(self):
-        self.assertEquals("011001", self.model.word)
+        self.assertEquals(list("011001"), self.model.word)
 
 
 class TestMachine(TestCase):
@@ -49,14 +49,7 @@ class TestMachine(TestCase):
     machine = Machine(model)
 
 
-class TestMachineState(TestCase):
-    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    handler = InputHandler(path)
-    model = ExerciseModel(handler.readFile())
-    head = Head(model)
 
-    def test_to_string(self):
-        self.fail()
 
 
 class TestValidator(TestCase):

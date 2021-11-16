@@ -4,7 +4,7 @@ from collections import defaultdict
 from dataclasses import field, dataclass
 from string import ascii_letters, whitespace, punctuation
 from typing import Set, List
-
+from .Exceptions import *
 
 class Instruction:
     forChar: str
@@ -145,7 +145,7 @@ class MachineState:
     def __init__(self, current_state, head_pos, machine_tape_state):
         self.current_state = current_state
         self.head_pos = head_pos
-        self.machine_tape_state = machine_tape_state
+        self.machine_tape_state = [char for char in machine_tape_state]
 
     def __str__(self) -> str:
         return self.to_string()
@@ -199,20 +199,6 @@ class Head:
         if self.head_pos > self.tape_len:
             raise OutOfTapeHeadException("Head moved out of tape in right direction.\nCheck given instructions")
         self.head_pos += 1
-
-class InfiniteLoopException(Exception):
-    pass
-
-
-class EndStateNotException(Exception):
-    pass
-
-class OutOfTapeHeadException(Exception):
-    """Head out of tape."""
-    pass
-
-class NotImplementedHeadMoveException(Exception):
-    pass
 
 
 class Machine:
@@ -280,9 +266,19 @@ class Machine:
             self.prevent_infinite_loop(instruction.next_state)
             self.current_state = instruction.next_state
             self.head.go(instruction.move_direction)
-
             is_solved = self.is_in_end_state()
-
         if self.debug:
             current_machine_state = self.get_machine_state()
             print(current_machine_state)
+
+    def create_raport(self, raport_path):
+        machine_state_first = (self.machine_states[:1] or [None])[0]
+        machine_state_second = (self.machine_states[-1:] or [None])[0]
+        machine_tape_before = "".join(machine_state_first.machine_tape_state[2:-2])
+        machine_tape_after = "".join(machine_state_second.machine_tape_state[2:-2]) \
+            if machine_state_second else machine_tape_before
+
+        with open(raport_path, "w") as raport:
+            raport.write("Word before: " + machine_tape_before + "\n")
+            raport.write("Description: " + self.model.description + "\n")
+            raport.write("Word after: " + machine_tape_after + "\n")

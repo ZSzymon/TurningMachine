@@ -62,10 +62,14 @@ class TestValidator(TestCase):
         validator.validate_alphabet()
 
 class TestMachine(TestCase):
-    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    handler = InputHandler(path)
-    model = ExerciseModel(handler.readFile())
-    machine = Machine(model)
+
+    def get_test_tuple(self, path = None):
+        if not path:
+            path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+        handler = InputHandler(path)
+        model = ExerciseModel(handler.readFile())
+        machine = Machine(model, debug=True)
+        return path, handler, model, machine
 
     def prepare_inversed_tape(self, tape_before):
         inverse_tape = []
@@ -79,18 +83,25 @@ class TestMachine(TestCase):
         return inverse_tape
 
     def test_solve(self):
-        tape_before = self.machine.machine_tape
-        self.machine.solve()
-        tape_after = self.machine.machine_tape
+        path, handler, model, machine = self.get_test_tuple()
+        tape_before = machine.machine_tape
+        machine.solve()
+        tape_after = machine.machine_tape
         self.assertEqual(self.prepare_inversed_tape(tape_before), tape_after)
         
     def test_init_machine_tape(self):
+        _, _, _, machine = self.get_test_tuple()
         expected_tape = "__011001__"
-        self.assertEqual(list(expected_tape), self.machine.machine_tape)
+        self.assertEqual(list(expected_tape), machine.machine_tape)
 
     def test_infinite_loop(self):
-        path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example_infinite_loop.txt"
-        handler = InputHandler(path)
-        model = ExerciseModel(handler.readFile())
-        machine = Machine(model, debug = False)
+        path, handler, model, machine = self.get_test_tuple("D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\"
+                                                            "tests\\example_infinite_loop.txt")
+        machine.max_same_state_counter = 99
         self.assertRaises(InfiniteLoopException, machine.solve)
+
+    def test_create_raport(self):
+        _, _, _, machine = self.get_test_tuple()
+        machine.solve()
+        machine.create_raport("D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine"
+                              "\\tests\\raports\\example_raport.txt")

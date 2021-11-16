@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Machine.InputHandler import InputHandler
+from src.inputHandler import InputHandler
 
 class TestInputHandler(TestCase):
     path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"

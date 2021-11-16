@@ -87,3 +87,10 @@ class TestMachine(TestCase):
     def test_init_machine_tape(self):
         expected_tape = "__011001__"
         self.assertEqual(list(expected_tape), self.machine.machine_tape)
+
+    def test_infinite_loop(self):
+        path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example_infinite_loop.txt"
+        handler = InputHandler(path)
+        model = ExerciseModel(handler.readFile())
+        machine = Machine(model, debug = False)
+        self.assertRaises(InfiniteLoopException, machine.solve)

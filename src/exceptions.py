@@ -10,3 +10,7 @@ class OutOfTapeHeadException(Exception):
 
 class NotImplementedHeadMoveException(Exception):
     pass
+
+class BedChar(Exception):
+    """Not Valid character"""
+

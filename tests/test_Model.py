@@ -56,17 +56,18 @@ class TestValidator(TestCase):
     path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
     handler = InputHandler(path)
     model = ExerciseModel(handler.readFile())
+
     def test_validate_model(self):
         validator = Validator(self.model)
         validator.validate_alphabet()
+
 class TestMachine(TestCase):
     path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
     handler = InputHandler(path)
     model = ExerciseModel(handler.readFile())
     machine = Machine(model)
-    def test_solve(self):
-        tape_before = self.machine.machine_tape
-        self.machine.solve()
+
+    def prepare_inversed_tape(self, tape_before):
         inverse_tape = []
         for char in tape_before:
             if char == "0":
@@ -75,9 +76,13 @@ class TestMachine(TestCase):
                 inverse_tape.append("1")
             else:
                 inverse_tape.append(char)
+        return inverse_tape
 
+    def test_solve(self):
+        tape_before = self.machine.machine_tape
+        self.machine.solve()
         tape_after = self.machine.machine_tape
-        self.assertEquals(inverse_tape, tape_after)
+        self.assertEqual(self.prepare_inversed_tape(tape_before), tape_after)
         
     def test_init_machine_tape(self):
         expected_tape = "__011001__"

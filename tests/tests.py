@@ -1,7 +1,15 @@
 from unittest import TestCase
+from src.inputHandler import InputHandler
+from src.machine import *
 
-from src.InputHandler import InputHandler
-from src.Model import *
+
+def get_test_tuple(path=None):
+    if not path:
+        path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    handler = InputHandler(path)
+    model = ExerciseModel(handler.readFile())
+    machine = Machine(model, debug=True)
+    return path, handler, model, machine
 
 
 class TestExerciseModel(TestCase):
@@ -42,30 +50,31 @@ class TestExerciseModel(TestCase):
         self.assertEquals(list("011001"), self.model.word)
 
 
-class TestMachine(TestCase):
-    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    handler = InputHandler(path)
-    model = ExerciseModel(handler.readFile())
-    machine = Machine(model)
-
-
-
-
 
 class TestValidator(TestCase):
     path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
     handler = InputHandler(path)
     model = ExerciseModel(handler.readFile())
 
-    def test_validate_model(self):
-        validator = Validator(self.model)
-        validator.validate_alphabet()
+    def test_validate_model_success(self):
+        _, _, model, _ = get_test_tuple()
+        validator = Validator(model)
+        validator.validate_word()
+
+    def test_validate_alphabet_model_failure(self):
+        #inside of model is creating Validator
+        file_with_wrong_alphabet = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example_wrong_alphabet.txt"
+        with self.assertRaises(BedChar):
+            _, _, model, _ = get_test_tuple(file_with_wrong_alphabet)
+
+    def test_validate_instructions_failure(self):
+        file_with_wrong_instructions = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests" \
+                                   "\\example_wrong_instructions.txt "
+        with self.assertRaises(EndStateNotException):
+            _, _, model, _ = get_test_tuple(file_with_wrong_instructions)
+
 
 class TestMachine(TestCase):
-    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    handler = InputHandler(path)
-    model = ExerciseModel(handler.readFile())
-    machine = Machine(model)
 
     def prepare_inversed_tape(self, tape_before):
         inverse_tape = []
@@ -79,11 +88,26 @@ class TestMachine(TestCase):
         return inverse_tape
 
     def test_solve(self):
-        tape_before = self.machine.machine_tape
-        self.machine.solve()
-        tape_after = self.machine.machine_tape
+        path, handler, model, machine = get_test_tuple()
+        tape_before = machine.machine_tape
+        machine.solve()
+        tape_after = machine.machine_tape
         self.assertEqual(self.prepare_inversed_tape(tape_before), tape_after)
-        
+
     def test_init_machine_tape(self):
+        _, _, _, machine = get_test_tuple()
         expected_tape = "__011001__"
-        self.assertEqual(list(expected_tape), self.machine.machine_tape)
+        self.assertEqual(list(expected_tape), machine.machine_tape)
+
+    def test_infinite_loop(self):
+        path, handler, model, machine = get_test_tuple("D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\"
+                                                       "tests\\example_infinite_loop.txt")
+        machine.max_same_state_counter = 99
+
+        self.assertRaises(InfiniteLoopException, machine.solve)
+
+    def test_create_raport(self):
+        _, _, _, machine = get_test_tuple()
+        machine.solve()
+        machine.create_raport("D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine"
+                              "\\tests\\raports\\example_raport.txt")

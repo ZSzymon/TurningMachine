@@ -31,12 +31,13 @@ class ExerciseModel:
     alphabet_with_out_empty_char: Set[str] = field(default_factory=Set)
     word_len: int = 0
     word: List[str] = field(default_factory=List)
-    end_state: str = "k"
+    end_states: str = "k"
     begin_state: str = "b"
     empty_char: str = "_"
 
     def __init__(self, raw_content):
         self._init_all(raw_content)
+        stop = 1
         self.validate()
         pass
 
@@ -58,13 +59,13 @@ class ExerciseModel:
 
     def _init_instructions_list(self, instruction_lines):
 
-        alphabet_len = len(self.alphabet_with_out_empty_char)
+        alphabet_len = len(self.alphabet)
         "alphabet_len-1 because there will be alphabet - 1" \
         " instruction list for each char in alphabet without '_'"
         counter = 0
         instructions = defaultdict(Instruction)
         try:
-            for i in range(alphabet_len - 1):
+            for i in range(len(self.states)):
                 state = instruction_lines[counter].split(":")[0]
                 counter += 1
                 for j in range(alphabet_len):
@@ -81,7 +82,7 @@ class ExerciseModel:
         self.begin_state = line.split(":")[1].replace(" ", "")
 
     def _init_end_state_(self, line):
-        self.end_state = line.split(":")[1].replace(" ", "")
+        self.end_states = line.split(":")[1].replace(" ", "").split(",")
 
     def _init_word_len_(self, line):
         self.word_len = line.split(":")[1].replace(" ", "")
@@ -159,5 +160,5 @@ class Validator:
 
     def validate_instructions(self):
         """Check is end state possible to approach"""
-        if not any(instruction.next_state == self.model.end_state for instruction in self.model.instructions.values()):
+        if not any(instruction.next_state in self.model.end_states for instruction in self.model.instructions.values()):
             raise EndStateNotException("There is not way to go in to end state.")

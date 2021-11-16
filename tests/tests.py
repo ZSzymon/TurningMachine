@@ -13,15 +13,14 @@ def get_test_tuple(path=None):
 
 
 class TestExerciseModel(TestCase):
-    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    handler = InputHandler(path)
-    model = ExerciseModel(handler.readFile())
+
 
     def test_create_model_(self):
         self.assertIsNotNone(self.model)
 
     def test_init_description(self):
-        self.assertEquals(self.model.description, "negacja")
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals(model.description, "negacja")
 
     def test_init_states(self):
         self.assertEquals({"0", "1", "k"}, self.model.states)
@@ -30,31 +29,37 @@ class TestExerciseModel(TestCase):
         instructionForZeroWhenOne = ['1', '0', '0', 'r']
         instructionForZeroWhenZero = ['0', '0', '1', 'r']
         instructionForZeroWhenEmpty = ['_', 'k', '_', 's']
-        self.assertEquals(instructionForZeroWhenZero, self.model.instructions[('0', '0')].getAsList())
-        self.assertEquals(instructionForZeroWhenOne, self.model.instructions[('0', '1')].getAsList())
-        self.assertEquals(instructionForZeroWhenEmpty, self.model.instructions[('0', '_')].getAsList())
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals(instructionForZeroWhenZero, model.instructions[('0', '0')].getAsList())
+        self.assertEquals(instructionForZeroWhenOne, model.instructions[('0', '1')].getAsList())
+        self.assertEquals(instructionForZeroWhenEmpty, model.instructions[('0', '_')].getAsList())
 
     def test__init_begin_state_(self):
-        self.assertEquals("0", self.model.begin_state)
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals("0", model.begin_state)
 
     def test__init_end_state_(self):
-        self.assertEquals("k", self.model.end_state)
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals("k", model.end_states)
 
     def test__init_word_len_(self):
-        self.assertEquals("6", self.model.word_len)
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals("6", model.word_len)
 
     def test__init_alphabet(self):
-        self.assertEquals({"0", "1", "_"}, self.model.alphabet_with_out_empty_char)
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals({"0", "1", "_"}, model.alphabet_with_out_empty_char)
 
     def test__init_word_(self):
-        self.assertEquals(list("011001"), self.model.word)
+        path, handler, model, machine = get_test_tuple()
+        self.assertEquals(list("011001"), model.word)
 
 
 
 class TestValidator(TestCase):
-    path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    handler = InputHandler(path)
-    model = ExerciseModel(handler.readFile())
+    #path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    #handler = InputHandler(path)
+    #model = ExerciseModel(handler.readFile())
 
     def test_validate_model_success(self):
         _, _, model, _ = get_test_tuple()
@@ -111,3 +116,22 @@ class TestMachine(TestCase):
         machine.solve()
         machine.create_raport("D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine"
                               "\\tests\\raports\\example_raport.txt")
+
+    def test_zad8(self):
+        path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\" \
+               "tests\\example_zad8.txt"
+        handler = InputHandler(path)
+        model = ExerciseModel(handler.readFile())
+        machine = Machine(model, debug=True)
+        machine.solve()
+        self.assertEqual("T",machine.current_state)
+
+    def test_zad8_false(self):
+        path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\" \
+               "tests\\example_zad8_false.txt"
+        handler = InputHandler(path)
+        model = ExerciseModel(handler.readFile())
+        machine = Machine(model, debug=True)
+        machine.solve()
+        self.assertEqual("F", machine.current_state)
+

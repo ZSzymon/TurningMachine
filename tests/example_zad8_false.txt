@@ -1,0 +1,32 @@
+Opis: "Czy liczba jest postaci 0w1w czy w to [0 lub 1]"
+stany:  s,qw1,q0,q1,qw2,qe
+alfabet: 0,1,_
+długość słowa: 4
+słowo: 1001
+stan końcowy: F,T
+stan początkowy: s
+instrukcja:
+s:
+0;qw1,0,s;
+1;qw1,1,s;
+_;s,_,r;
+qw1:
+0;q0,0,r
+1;q0,1,r
+_;F,_,_
+q0:
+0;q1,0,r
+1;F,1,_
+_;F,_,_
+q1:
+0;F,0,_
+1;qw2,1,r
+_;F,_,_
+qw2:
+0;qe,0,r
+1;qe,1,r
+_;F,_,_
+qe:
+0;F,0,_
+1;f,1,_
+_;T,_,_

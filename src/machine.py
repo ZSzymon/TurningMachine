@@ -22,7 +22,7 @@ class Head:
             self.goRight()
         elif direction == "l":
             self.goLeft()
-        elif direction == "s":
+        elif direction == "s" or direction == "_":
             self.goNoWhere()
         else:
             raise NotImplementedHeadMoveException(f"The {direction} is not supported.\n"
@@ -79,7 +79,7 @@ class Machine:
         return -1
 
     def is_in_end_state(self):
-        return self.current_state == self.model.end_state
+        return self.current_state in self.model.end_states
 
     def prevent_infinite_loop(self, next_state):
         """Count number of same state for every loop"""

@@ -1,0 +1,28 @@
+Opis: Sprawdzanie czy ciąg posiada taka sama ilość zer i jedynek
+stany: s,0,1,p,a,n
+alfabet: 0,1,#,_
+długość słowa: 17
+słowo: 001010101111100001
+stan końcowy: a,n
+stan początkowy: s
+instrukcja:
+s:
+#;s,#,r;
+0;1,#,r;
+1;0,#,r;
+_;a,_,s;
+0:
+0;p,#,l;
+1;0,1,r;
+#;0,#,r;
+_;n,_,s;
+1:
+0;1,0,r;
+1;p,#,l;
+#;1,#,r;
+_;n,_,s;
+p:
+0;p,0,l;
+1;p,1,l;
+#;p,#,l;
+_;s,_,r;

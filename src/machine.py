@@ -98,13 +98,11 @@ class Machine:
         """run run run."""
         is_solved = self.is_in_end_state()
         while not is_solved:
-            current_machine_state = self.get_machine_state()
             if self.debug:
-                print(current_machine_state)
-            self.machine_states.append(current_machine_state)
+                print(self.get_machine_state())
+
+            self.machine_states.append(self.get_machine_state())
             current_char = self.head.read_char(self.machine_tape)
-            if self.debug:
-                current_state = self.current_state
             instruction = self.model.instructions[(self.current_state, current_char)]
             self.machine_tape = self.head.write_char(self.machine_tape, instruction.changeTo)
             self.prevent_infinite_loop(instruction.next_state)

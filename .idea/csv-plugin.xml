@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\model.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\tests\test_Model.py">
           <value>
             <Attribute>

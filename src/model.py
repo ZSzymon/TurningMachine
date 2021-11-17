@@ -48,7 +48,7 @@ class ExerciseModel:
     def _init_all(self, raw_content):
         lines = raw_content.split("\n")
         self._init_description_(lines[0])
-        self._init_state_list(lines[1])
+        self._init_states(lines[1])
         self._init_empty_char(lines[2])
         self._init_alphabets(lines[2])
         self._init_word_len_(lines[3])
@@ -60,12 +60,12 @@ class ExerciseModel:
     def _init_instructions_list(self, instruction_lines):
 
         alphabet_len = len(self.alphabet)
-        "alphabet_len-1 because there will be alphabet - 1" \
-        " instruction list for each char in alphabet without '_'"
+        """There is (states - end_states)*alphabet instructions."""
+        states_len = len(self.states) - len(self.end_states)
         counter = 0
         instructions = defaultdict(Instruction)
         try:
-            for i in range(len(self.states)):
+            for i in range(states_len):
                 state = instruction_lines[counter].split(":")[0]
                 counter += 1
                 for j in range(alphabet_len):
@@ -75,7 +75,7 @@ class ExerciseModel:
                     counter += 1
         except IndexError as e:
             print(e)
-            print("Possible not enough instructions for given alphabet.")
+            print("Possible not enough instructions for given alphabet/states.")
         self.instructions = instructions
 
     def _init_begin_state_(self, line):
@@ -88,10 +88,10 @@ class ExerciseModel:
         self.word_len = line.split(":")[1].replace(" ", "")
 
     def _init_description_(self, line):
-        description = [char for char in line.split(":")[1] if char in ascii_letters]
+        description = [char for char in line.split(":")[1] if char in ascii_letters or char.isspace()]
         self.description = "".join(description)
 
-    def _init_state_list(self, line):
+    def _init_states(self, line):
         states = set()
         for state in line.split(":")[1].split(","):
             if state not in whitespace:
@@ -100,17 +100,16 @@ class ExerciseModel:
 
     def _init_alphabets(self, line):
         self.alphabet_with_out_empty_char = set()
-
         def can_add(character):
-            return character == self.empty_char or \
-                   (not character.isspace() and character not in punctuation) or False
+            return character not in [",",";",":"] and not character.isspace()
 
         for char in line.split(":")[1]:
             if can_add(char):
                 self.alphabet_with_out_empty_char.add(char)
 
-        self.alphabet = self.alphabet_with_out_empty_char
+        self.alphabet = set(symbol for symbol in self.alphabet_with_out_empty_char)
         self.alphabet.add(self.empty_char)
+        stop = 1
 
     def _init_word_(self, line):
         self.word = [char for char in line.split(":")[1].replace(" ", "")]
@@ -144,6 +143,8 @@ class MachineState:
         return state
 
 
+
+
 @dataclass
 class Validator:
     model: ExerciseModel = None
@@ -156,9 +157,10 @@ class Validator:
         word = self.model.word
         for char in word:
             if char not in self.model.alphabet:
-                raise BedChar(f"Character {char} not in alphabet: {self.model.alphabet}")
+                raise BadChar(f"Character {char} not in alphabet: {self.model.alphabet}")
 
     def validate_instructions(self):
         """Check is end state possible to approach"""
+
         if not any(instruction.next_state in self.model.end_states for instruction in self.model.instructions.values()):
             raise EndStateNotException("There is not way to go in to end state.")

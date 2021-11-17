@@ -1,6 +1,7 @@
 from unittest import TestCase
 from src.inputHandler import InputHandler
 from src.machine import *
+from src.model import *
 
 
 def get_test_tuple(path=None):
@@ -14,9 +15,9 @@ def get_test_tuple(path=None):
 
 class TestExerciseModel(TestCase):
 
-
     def test_create_model_(self):
-        self.assertIsNotNone(self.model)
+        _, _, model, _ = get_test_tuple()
+        self.assertIsNotNone(model)
 
     def test_init_description(self):
         path, handler, model, machine = get_test_tuple()
@@ -40,8 +41,7 @@ class TestExerciseModel(TestCase):
 
     def test__init_end_state_(self):
         path, handler, model, machine = get_test_tuple()
-        self.assertEquals("k", model.end_states)
-
+        self.assertIn("k", model.end_states)
     def test__init_word_len_(self):
         path, handler, model, machine = get_test_tuple()
         self.assertEquals("6", model.word_len)
@@ -55,11 +55,10 @@ class TestExerciseModel(TestCase):
         self.assertEquals(list("011001"), model.word)
 
 
-
 class TestValidator(TestCase):
-    #path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
-    #handler = InputHandler(path)
-    #model = ExerciseModel(handler.readFile())
+    # path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example.txt"
+    # handler = InputHandler(path)
+    # model = ExerciseModel(handler.readFile())
 
     def test_validate_model_success(self):
         _, _, model, _ = get_test_tuple()
@@ -67,14 +66,14 @@ class TestValidator(TestCase):
         validator.validate_word()
 
     def test_validate_alphabet_model_failure(self):
-        #inside of model is creating Validator
+        # inside of model is creating Validator
         file_with_wrong_alphabet = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests\\example_wrong_alphabet.txt"
-        with self.assertRaises(BedChar):
+        with self.assertRaises(BadChar):
             _, _, model, _ = get_test_tuple(file_with_wrong_alphabet)
 
     def test_validate_instructions_failure(self):
         file_with_wrong_instructions = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\tests" \
-                                   "\\example_wrong_instructions.txt "
+                                       "\\example_wrong_instructions.txt "
         with self.assertRaises(EndStateNotException):
             _, _, model, _ = get_test_tuple(file_with_wrong_instructions)
 
@@ -124,7 +123,7 @@ class TestMachine(TestCase):
         model = ExerciseModel(handler.readFile())
         machine = Machine(model, debug=True)
         machine.solve()
-        self.assertEqual("T",machine.current_state)
+        self.assertEqual("T", machine.current_state)
 
     def test_zad8_false(self):
         path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\" \
@@ -135,3 +134,14 @@ class TestMachine(TestCase):
         machine.solve()
         self.assertEqual("F", machine.current_state)
 
+    def test_zad8_ilosc_jedynek_zer(self):
+        """Test mający na celu sprawdzić czy
+         maszyna poradzi sobie z zadaniem określającym tą
+          samą ilość zer i jedynek."""
+
+        path = "D:\\Szymon\\STUDIA\\Algorytmika\\TurningMachine\\" \
+               "tests\\example_taka_sama_ilosc_zer_jedynek.txt"
+        _, handler, model, machine = get_test_tuple(path)
+        machine.debug = True
+        machine.solve()
+        machine.create_raport("raport.txt")

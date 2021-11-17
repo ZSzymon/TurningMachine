@@ -1,9 +1,6 @@
 class InfiniteLoopException(Exception):
     pass
 
-class EndStateNotException(Exception):
-    pass
-
 class OutOfTapeHeadException(Exception):
     """Head out of tape."""
     pass
@@ -11,6 +8,9 @@ class OutOfTapeHeadException(Exception):
 class NotImplementedHeadMoveException(Exception):
     pass
 
-class BedChar(Exception):
+class BadChar(Exception):
     """Not Valid character"""
 
+
+class EndStateNotException(Exception):
+    pass

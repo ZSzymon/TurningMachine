@@ -1,0 +1,3 @@
+Word before: 001010101111100001
+Description:  Sprawdzanie czy cig posiada taka sama ilo zer i jedynek
+Word after: ##################

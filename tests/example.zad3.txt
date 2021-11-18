@@ -1,0 +1,17 @@
+opis: nastepnik w alfabecie binarnym
+stany: 0,1,k
+alfabet: 1,0,_
+dlugosc slowa: 7
+slowo: 0111111
+stan koncowy: k
+stan poczatkowy: 0
+instrukcja:
+0:
+1;0,1,r;
+0;0,0,r;
+_;1,_,l;
+1:
+1;1,0,l;
+0;k,1,s;
+_;k,1,s;
+
